@@ -1,0 +1,11 @@
+node_modules
+/coverage
+/.nyc_output
+npm-debug.log
+package-lock.json
+.npmrc
+*.code-workspace
+dist
+.DS_Store
+.lastbackedup
+xman.io-xman-js-sdk-*.tgz

@@ -1,0 +1,52 @@
+{
+  "name": "@xman.io/xman-js-sdk",
+  "version": "0.5.6",
+  "description": "Javascript SDK to access the data published using XMan.io",
+  "main": "dist/sdk/xman-js-sdk.cjs.js",
+  "module": "dist/sdk/xman-js-sdk.esm.js",
+  "browser": "dist/sdk/xman-js-sdk.umd.js",
+  "scripts": {
+    "build": "rollup -c",
+    "dev": "rollup -c -w",
+    "pretest": "npm run build",
+    "test": "mocha --require esm --reporter spec --timeout=10000",
+    "dist": "rm -rf dist && rollup -c && cp src/index.html dist/index.html"
+  },
+  "files": [
+    "dist/sdk/**/*"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/liquiron/xman-js-sdk.git"
+  },
+  "keywords": [
+    "XMan I/O",
+    "xman",
+    "Javascript",
+    "SDK",
+    "Small Data",
+    "Content Management",
+    "Realtime",
+    "Data",
+    "Manage"
+  ],
+  "author": "Liquiron, Inc.",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/liquiron/xman-js-sdk/issues"
+  },
+  "homepage": "https://github.com/liquiron/xman-js-sdk#readme",
+  "dependencies": {
+    "axios": "^0.20.0",
+    "https": "^1.0.0",
+    "lodash.isplainobject": "^4.0.6"
+  },
+  "devDependencies": {
+    "@rollup/plugin-json": "^4.1.0",
+    "chai": "^4.2.0",
+    "esm": "^3.2.25",
+    "mocha": "^8.1.1",
+    "rollup": "^2.26.5",
+    "rollup-plugin-terser": "^7.0.0"
+  }
+}
