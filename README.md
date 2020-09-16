@@ -72,7 +72,7 @@ Use XMan SDK to read collections and items
 const itemsList = await workspace.list('schema-type-id')
 
 // E.g.
-const articleList = await workspace.list('xman-article)
+const articleList = await workspace.list('xman-article')
 // articleList.should.be.an('object')
 // articleList.items.should.be.an('array')
 
@@ -103,8 +103,7 @@ Would return an item or `null`:
       about: "Centrally located ...",
       description: "Perfectly positioned ...",
       imageGallery: ImageReferences,
-      communitiesAround: ItemReferences,
-      …
+      communitiesAround: ItemReferences
     },
     version: 2,
     createdAt: 2019-10-31T13:44:13.625Z,
@@ -155,8 +154,7 @@ Would return an array of items. Array can be empty, but never `undefined` or `nu
         about: "Centrally located ...",
         description: "Perfectly positioned ...",
         imageGallery: ImageReferences,
-        communitiesAround: ItemReferences,
-        …
+        communitiesAround: ItemReferences
       },
       version: 2,
       createdAt: 2019-10-31T13:44:13.625Z,
@@ -169,8 +167,7 @@ Would return an array of items. Array can be empty, but never `undefined` or `nu
         about: "Centrally located ...",
         description: "Perfectly positioned ...",
         imageGallery: ImageReferences,
-        communitiesAround: ItemReferences,
-        …
+        communitiesAround: ItemReferences
       },
       version: 1,
       createdAt: 2019-10-31T13:52:57.109Z,
