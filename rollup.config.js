@@ -21,8 +21,10 @@ export default [
     ],
     plugins: [
       terser({
+        format: {
+          comments: 'all',
+        },
         compress: {},
-        mangle: {}
       }),
       json()
     ]

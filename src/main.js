@@ -1,7 +1,9 @@
 import Workspace from './model/Workspace'
-import {version} from '../package.json'
+import { version as pv } from '../package.json'
 
-const getWorkspace = (clientId, workspaceId, stageName = 'live', cdnServer = 'https://xman.live', secret) => {
+export const version = pv
+
+export const getWorkspace = (clientId, workspaceId, stageName = 'live', cdnServer = 'https://xman.live', secret) => {
   const ws = new Workspace(clientId, workspaceId, stageName, cdnServer, secret)
   return {
     /**
@@ -57,9 +59,4 @@ const getWorkspace = (clientId, workspaceId, stageName = 'live', cdnServer = 'ht
       return getWorkspace(clientId, workspaceId, stageName, cdnServer, secret)
     }
   }
-}
-
-export default {
-  getWorkspace,
-  version: version
 }

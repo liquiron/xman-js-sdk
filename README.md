@@ -29,7 +29,7 @@ npm install --save @xman.io/xman-js-sdk
 Then
 
 ```javascript
-import XmanSdk from '@xman.io/xman-js-sdk'
+import { getWorkspace } from '@xman.io/xman-js-sdk'
 ```
 
 ## Get Workspace and Stage
@@ -39,15 +39,14 @@ import XmanSdk from '@xman.io/xman-js-sdk'
 ```javascript
 // Workspace can be a global variable
 // Default stage is 'live'
-const workspace = XmanSdk.getWorkspace('api-client-id', 'workspace-id')
+const workspace = getWorkspace('api-client-id', 'workspace-id')
 
 // You can pass a stage name to get a different stage
-const workspace = XmanSdk.getWorkspace('api-client-id', 'workspace-id', 'pre-production')
+const workspace = getWorkspace('api-client-id', 'workspace-id', 'pre-production')
 
 // or 
 
-const workspace = XmanSdk
-  .getWorkspace('api-client-id', 'workspace-id')
+const workspace = getWorkspace('api-client-id', 'workspace-id')
   .stage('pre-production')
 
 ```
@@ -58,8 +57,7 @@ For server side access pass the the secret key. Make sure the key does not leak 
 This step also applies to frameworks that do server side rendering or static page generation, such as: Nuxt, NextJS, Gatsby, etc.
 
 ```javascript
-let workspace = XmanSdk
-.getWorkspace('api-client-id', 'workspace-id')
+let workspace = getWorkspace('api-client-id', 'workspace-id')
 .secret('api-secret-key')
 ```
 

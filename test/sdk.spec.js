@@ -1,12 +1,12 @@
-import chai from 'chai'
-import XmanApiClient from '../'
-import pkg from '../package.json'
+// Mocha has problems with ESM. Just test as CJS
+const chai = require('chai')
+const { version, getWorkspace } = require('../dist/sdk/xman-js-sdk.cjs')
+const pkg = require('../package.json')
 
 chai.should()
-const workspace = XmanApiClient.getWorkspace('86GlmZ2SMaj1LycBqPHk', 'spaceyfi-dummy')
+const workspace = getWorkspace('86GlmZ2SMaj1LycBqPHk', 'spaceyfi-dummy')
   .cdn('https://staging.xman.live')
   .secret('usFrA8zzM4WP0i0JX1wJZfp6OuOskewq0FDZlxnc')
-const version = XmanApiClient.version
 
 describe('Xman SDK v' + version, async () => {
   it('Should report correct version', () => {
