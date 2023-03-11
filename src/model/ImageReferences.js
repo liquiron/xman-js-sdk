@@ -10,7 +10,7 @@ class ImageReferences extends ItemReferences {
    * @typedef ImageSettings
    * @property {Number} width image width. Cannot be larger than actual image width
    * @property {Number} height image height. Cannot be larger than the actual image height
-   * @property {String} fit one of *`cover`, `fill`, `contain`
+   * @property {('cover'|'fill'|'contain')} fit one of *`cover`, `fill`, `contain`
    * 
    * @param {ImageSettings} imageSettings image settings
    * @returns Promise<{altText: string; url: string;}> image details
@@ -29,9 +29,10 @@ class ImageReferences extends ItemReferences {
   }
   async buildImage (imgRef, imageSettings = {}) {
     const imgUrl = new URL(this.imageBaseUrl + imgRef.id)
-    const { width, height } = imageSettings
+    const { width, height, fit } = imageSettings
     if (width) imgUrl.searchParams.set('width', width)
     if (height) imgUrl.searchParams.set('height', height)
+    if (fit) imgUrl.searchParams.set('fit', fit)
     imgUrl.searchParams.set('xacid', this.clientId)
     return {altText: imgRef.label, url: imgUrl.href}
   }
