@@ -70,7 +70,7 @@ Use XMan SDK to read collections and items
 // Get a list of items
 const itemsList = await workspace.list<T>('collection-id', optionalListParams)
 // returns
-interface ListResponse<T> {
+interface XmanItemsList<T> {
   items: XmanItem<T>[],
   nextPageToken?: string
 }
@@ -152,12 +152,12 @@ interface ListParams {
   orderBy?: string
 }
 
-interface ListResponse<T> {
+interface XmanItemsList<T> {
   items: XmanItem<T>[],
   nextPageToken?: string
 }
 
-list<T> (collection: string, listParams?: ListParams): Promise<ListResponse<T>>;
+list<T> (collection: string, listParams?: ListParams): Promise<XmanItemsList<T>>;
 
 ````
 

@@ -1,63 +1,6 @@
 import axios, { AxiosInstance, RawAxiosRequestHeaders } from 'axios'
 import { Agent } from 'https'
-
-/**
- * Options for reading a list
- */
-export interface ListParams {
-  /** in page size. Default 12. Max 24. */
-  pageSize?: number,
-  /** the `nextPageToken` returned by the previous `list()` call. */
-  nextPage?: string,
-  /** property path to order by, followed by direction. E.g. `name asc` */
-  orderBy?: string
-}
-
-export interface XmanItemReference {
-  collection: string,
-  id: string,
-  /** Label is cached at the time reference is created. Not updated with the item changes. */
-  label?: string
-  altText?: string
-  thumbId?: string
-}
-
-export interface XmanItem<T> {
-  id: string
-  data: T,
-  createTime: string,
-  updateTime: string,
-  version: number
-}
-
-export interface ListResponse<T> {
-  items: XmanItem<T>[],
-  nextPageToken?: string
-}
-
-export interface ImageSettings {
-  /** 
-   * Key to identify the variation of the image.
-   * `getImage(s)` will return variations in a map keyed by this key
-   * */
-  key: string
-  /** Image width. If larger than actual image width, actual width is used */
-  width?: number
-  /** Image height. If larger than actual image height, actual height is used */
-  height?: number
-  fit?: 'cover' | 'fill' | 'contain'
-}
-
-export interface HTMLImageData {
-  alt: string,
-  variations: {
-    [key: string]: {
-      src: string,
-      width?: number,
-      height?: number
-    }
-  }
-}
+import { ListParams, XmanItemsList, XmanItem, XmanFieldValue, ImageSettings, HTMLImageData } from './xman-types.js'
 
 export class Workspace {
   clientId: string
@@ -103,9 +46,9 @@ export class Workspace {
     //   return response
     // })
   }
-  async list<T> (collection: any, listParams: ListParams = {}): Promise<ListResponse<T>> {
+  async list<T> (collection: any, listParams: ListParams = {}): Promise<XmanItemsList<T>> {
     try {
-      const response = await this.getHttpClient().get<ListResponse<T>>(collection, {
+      const response = await this.getHttpClient().get<XmanItemsList<T>>(collection, {
         params: { ...listParams, addHints: false }
       })
       return response.data
@@ -139,13 +82,13 @@ export class Workspace {
     }
   }
 
-  async readReferencedItem<T> (referenceFieldValue?: XmanItemReference[]): Promise<XmanItem<T> | null> {
+  async readReferencedItem<T> (referenceFieldValue?: XmanFieldValue.Reference[]): Promise<XmanItem<T> | null> {
     if (!Array.isArray(referenceFieldValue)) return null
     if (referenceFieldValue.length === 0) return null
     return this.read(referenceFieldValue[0].collection, referenceFieldValue[0].id)
   }
 
-  async readReferencedItems<T> (referenceFieldValue?: XmanItemReference[], failOnPartialFailure?: boolean): Promise<XmanItem<T>[]> {
+  async readReferencedItems<T> (referenceFieldValue?: XmanFieldValue.Reference[], failOnPartialFailure?: boolean): Promise<XmanItem<T>[]> {
     if (!Array.isArray(referenceFieldValue)) return []
     const goodPointers = referenceFieldValue.filter(v => v && v.collection && v.id)
     const settledPromises = await Promise.allSettled(goodPointers.map(rv => this.read(rv.collection, rv.id)))
@@ -165,14 +108,14 @@ export class Workspace {
   /**
    * Generates alt text and image URLs for a set of image references.
    * 
-   * @param {XmanItemReference[]} imgRefs pointers to image items. You can use the reference field values directly
+   * @param {XmanFieldValue.Reference[]} imgRefs pointers to image items. You can use the reference field values directly
    * @param {ImageSettings?} imageSettings image settings
    * @returns Promise<HTMLImageData[]> list of image details
    */
-  async getImages (imgRefs: XmanItemReference[], imageSettings?: ImageSettings[]): Promise<HTMLImageData[]> {
+  async getImages (imgRefs: XmanFieldValue.Reference[], imageSettings?: ImageSettings[]): Promise<HTMLImageData[]> {
     return Promise.all(imgRefs.map(p => this.getImage(p, imageSettings)))
   }
-  async getImage (imgRef: XmanItemReference, imageSettings: ImageSettings[] = [{ key: 'main' }]): Promise<HTMLImageData> {
+  async getImage (imgRef: XmanFieldValue.Reference, imageSettings: ImageSettings[] = [{ key: 'main' }]): Promise<HTMLImageData> {
     if (!imgRef) throw new Error('Invalid Image Reference')
     const { collection, id } = imgRef
     if (!collection || !id) throw new Error('Invalid Image Reference')
@@ -203,17 +146,8 @@ export class Workspace {
 
 }
 
-interface XmanFile {
-  contentType: string,
-  name: string,
-  storageName: string,
-  md5Hash: string,
-  size: number,
-  publicUrl: string
-}
-
 interface XmanImage {
-  masterImage: XmanFile
+  masterImage: XmanFieldValue.File
   altText?: string
   name?: string
   description?: string

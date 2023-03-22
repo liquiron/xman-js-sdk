@@ -2,8 +2,9 @@ import { expect, describe, it, beforeAll, afterEach, afterAll } from 'vitest'
 import { setupServer } from 'msw/node'
 import { rest } from 'msw'
 import { mockTags } from './mock-data/xman-tags.json' assert { type: 'json'}
-import { ImageSettings, Workspace } from '../src/Workspace'
-
+import { Workspace } from '../src/Workspace'
+import { ImageSettings } from '../src/xman-types'
+import { XmanFieldValue } from '../src/xman-types'
 const m = {
   cdn: 'https://dummy.cdn',
   workspace: 'dummy-workspace',
@@ -193,16 +194,9 @@ describe('Workspace', async () => {
   })
 })
 
-interface XmanItemReference {
-  collection: string
-  id: string
-  label?: string
-  thumbId?: string
-  altText?: string
-}
 interface Tag {
   name: string
   description?: string
-  parentTag?: XmanItemReference[]
+  parentTag?: XmanFieldValue.Reference[]
   slug?: string
 }

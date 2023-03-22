@@ -1,7 +1,8 @@
-import { ListParams, ListResponse, Workspace, XmanItem, XmanItemReference, ImageSettings, HTMLImageData } from './Workspace.js'
+import { Workspace } from './Workspace.js'
+import { ListParams, XmanItemsList, XmanItem, XmanFieldValue, ImageSettings, HTMLImageData } from "./xman-types.d.js";
 // export { version } from '../package.json' assert { type: 'json' }
 /* c8 ignore next 1 */
-export { ListParams, ListResponse, XmanItem, XmanItemReference, ImageSettings, HTMLImageData }
+export { ListParams, XmanItemsList, XmanItem, XmanFieldValue, ImageSettings, HTMLImageData }
 
 export interface WorkspaceWrapper {
   /**
@@ -15,21 +16,21 @@ export interface WorkspaceWrapper {
   /**
    * Loads and returns the first referenced item in the reference list. If the list is empty, returns null
    * 
-   * @param referenceFieldValue {XmanItemReference[]} field value of a reference field. Use directly from the response of previous calls
+   * @param referenceFieldValue {XmanFieldValue.Reference[]} field value of a reference field. Use directly from the response of previous calls
    * @returns {Promise<XmanItem<T> | null>} First referenced item or `null` if no items referenced
    */
-  readReferencedItem<T> (referenceFieldValue?: XmanItemReference[]): Promise<XmanItem<T> | null>;
+  readReferencedItem<T> (referenceFieldValue?: XmanFieldValue.Reference[]): Promise<XmanItem<T> | null>;
   /**
    * Loads and returns all the referenced items in the reference list. If the list is empty, returns [].
    * This method ignores all items that fail to load. E.g. The API Client you created may not have access to some collections
    * If you want the call to fail when such errors happen, pass `failOnPartialFailure = true`
    * 
-   * @param referenceFieldValue {XmanItemReference[]} field value of a reference field. Use directly from the response of previous calls
+   * @param referenceFieldValue {XmanFieldValue.Reference[]} field value of a reference field. Use directly from the response of previous calls
    * @param failOnPartialFailure {boolean} if `true` throws an error if any item reference throws an error
    * @returns {[Promise<XmanItem<T>]} First referenced item or `null` if no items referenced
    * @throws Error when `failOnPartialFailure = true` and one or more items fail to load
    */
-  readReferencedItems<T> (referenceFieldValue?: XmanItemReference[], failOnPartialFailure?: boolean): Promise<XmanItem<T>[]>;
+  readReferencedItems<T> (referenceFieldValue?: XmanFieldValue.Reference[], failOnPartialFailure?: boolean): Promise<XmanItem<T>[]>;
   /**
    * Read a list of items. Simple paging and sorting is supported.
    * 
@@ -38,23 +39,23 @@ export interface WorkspaceWrapper {
    * @param {string} collection 
    * @param {ListParams?} listParams Parameters for the list
    */
-  list<T> (collection: string, listParams?: ListParams): Promise<ListResponse<T>>;
+  list<T> (collection: string, listParams?: ListParams): Promise<XmanItemsList<T>>;
   /**
    * Generates alt text and image URLs for a set of image references.
    * 
-   * @param {XmanItemReference[]} imgRefs pointers to image items. You can use the reference field values directly
+   * @param {XmanFieldValue.Reference[]} imgRefs pointers to image items. You can use the reference field values directly
    * @param {ImageSettings?} imageSettings image settings
    * @returns Promise<HTMLImageData[]> list of image details
    */
-  getImages (imgRefs: XmanItemReference[], imageSettings?: ImageSettings[]): Promise<HTMLImageData[]>;
+  getImages (imgRefs: XmanFieldValue.Reference[], imageSettings?: ImageSettings[]): Promise<HTMLImageData[]>;
   /**
    * Generates alt text and image URLs for one image reference
    * 
-   * @param {XmanItemReference} imgRef pointers to an image item. You can use the reference field value directly
+   * @param {XmanFieldValue.Reference} imgRef pointers to an image item. You can use the reference field value directly
    * @param {ImageSettings?} imageSettings image settings
    * @returns Promise<HTMLImageData> image details
    */
-  getImage (imgRef: XmanItemReference, imageSettings?: ImageSettings[]): Promise<HTMLImageData>;
+  getImage (imgRef: XmanFieldValue.Reference, imageSettings?: ImageSettings[]): Promise<HTMLImageData>;
   /**
    * Change the stage to pull data from. Default is 'live'
    * @param {String} stageName 
