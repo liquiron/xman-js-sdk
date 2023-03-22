@@ -1,6 +1,6 @@
 {
   "name": "@xman.io/xman-js-sdk",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Javascript/typescript SDK to access the data published using XMan.io",
   "type": "module",
   "main": "./dist/sdk/xman-js-sdk.mjs",
@@ -59,6 +59,5 @@
     "tslib": "^2.5.0",
     "typescript": "^4.9.5",
     "vitest": "^0.29.2"
-  },
-  "private": true
+  }
 }
