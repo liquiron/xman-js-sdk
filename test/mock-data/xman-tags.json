@@ -1,0 +1,90 @@
+{
+  "mockTags": {
+    "items": [
+      {
+        "data": {
+          "name": "New York",
+          "slug": "new-york"
+        },
+        "id": "5f9NWtYXIzq68AHQDcdm",
+        "createTime": "2022-06-09T22:44:14.844Z",
+        "updateTime": "2022-06-09T22:44:14.844Z",
+        "version": 1
+      },
+      {
+        "data": {
+          "name": "Cool cities"
+        },
+        "id": "oUWeEecIcViHQGQGuPTx",
+        "createTime": "2022-05-02T05:28:57.583Z",
+        "updateTime": "2022-05-02T05:28:57.583Z",
+        "version": 1
+      },
+      {
+        "data": {
+          "parentTag": {},
+          "description": "With an empty and objectey parent",
+          "name": "Tables"
+        },
+        "id": "30Ey0DhKMw350vEDXOPG",
+        "createTime": "2020-11-24T23:25:00.662Z",
+        "updateTime": "2021-01-07T23:19:33.808Z",
+        "version": 1
+      },
+      {
+        "data": {
+          "slug": "philadelphia",
+          "parentTag": [
+            {
+              "id": "tKvu1zlpmLmxYszLz0FS",
+              "collection": "xman-tag",
+              "label": "Destinations"
+            },
+            {
+              "id": "oUWeEecIcViHQGQGuPTx",
+              "collection": "xman-tag",
+              "label": "cool-cities"
+            },
+            {
+              "id": "5ywt1nvC6ZdyZKS9w3jc",
+              "collection": "xman-tag",
+              "label": "Missing Tag"
+            },
+            {
+              "id": "some-id",
+              "collection": "wrong-collection",
+              "label": "Wrong collection"
+            },
+            {}
+          ],
+          "name": "Philadelphia"
+        },
+        "id": "dyGB3U5F2k3BCM9HIY66",
+        "createTime": "2020-08-31T18:52:10.118Z",
+        "updateTime": "2020-08-31T18:52:10.118Z",
+        "version": 1
+      },
+      {
+        "data": {
+          "name": "Destinations",
+          "description": "Destinations to visit now or never or whenever",
+          "slug": "destinations"
+        },
+        "id": "tKvu1zlpmLmxYszLz0FS",
+        "createTime": "2020-05-22T22:28:12.895Z",
+        "updateTime": "2020-08-31T18:52:09.952Z",
+        "version": 1
+      },
+      {
+        "data": {
+          "slug": "special-events",
+          "name": "Special Events"
+        },
+        "id": "6YvyQMswkSeOq66gwqSd",
+        "createTime": "2020-06-23T16:47:11.413Z",
+        "updateTime": "2020-06-23T16:47:11.413Z",
+        "version": 1
+      }
+    ]
+  }
+}

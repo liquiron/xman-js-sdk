@@ -1,32 +1,38 @@
-import { terser } from 'rollup-plugin-terser'
+import terser from '@rollup/plugin-terser'
 import json from '@rollup/plugin-json'
-
-import pkg from './package.json'
+import typescript from '@rollup/plugin-typescript'
+import dts from 'rollup-plugin-dts'
+import pkg from './package.json' assert { type: 'json' }
 
 export default [
   {
-    input: 'src/main.js',
-    external: ['axios'],
+    input: 'src/index.ts',
+    external: ['axios', 'https'],
     output: [
       {
-        name: 'xmanJsSdk',
-        file: pkg.browser,
-        format: 'umd'
+        file: pkg.main,
+        format: 'es'
       },
       {
-        file: pkg.main,
+        file: pkg.module,
         format: 'cjs'
-      },
-      { file: pkg.module, format: 'es' }
+      }
     ],
     plugins: [
+      typescript(),
       terser({
-        format: {
-          comments: 'all',
-        },
         compress: {},
       }),
       json()
     ]
+  },
+  {
+    input: 'src/index.ts',
+    external: ['axios', 'https'],
+    plugins: [dts(), json()],
+    output: [{
+      file: pkg.typings,
+      format: 'es'
+    }]
   }
 ]

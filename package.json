@@ -1,28 +1,35 @@
 {
   "name": "@xman.io/xman-js-sdk",
-  "version": "0.5.6",
-  "description": "Javascript SDK to access the data published using XMan.io",
-  "main": "dist/sdk/xman-js-sdk.cjs",
-  "module": "dist/sdk/xman-js-sdk.mjs",
-  "browser": "dist/sdk/xman-js-sdk.umd.js",
+  "version": "1.0.4",
+  "description": "Javascript/typescript SDK to access the data published using XMan.io",
+  "type": "module",
+  "main": "./dist/sdk/xman-js-sdk.mjs",
+  "module": "./dist/sdk/xman-js-sdk.cjs",
+  "typings": "./dist/sdk/xman-js-sdk.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/sdk/xman-js-sdk.mjs",
+      "require": "./dist/sdk/xman-js-sdk.cjs",
+      "types": "./dist/sdk/xman-js-sdk.d.ts"
+    }
+  },
   "scripts": {
     "build": "rollup -c",
     "dev": "rollup -c -w",
-    "pretest": "npm run build",
-    "test": "mocha --reporter spec --timeout=10000",
-    "dist": "rm -rf dist && rollup -c && cp src/index.html dist/index.html"
+    "pretest": "yarn build",
+    "test": "vitest",
+    "coverage": "vitest run --coverage",
+    "dist": "rm -rf dist && rollup -c && cp src/index.html dist/index.html && yarn pack"
   },
   "files": [
     "dist/sdk/**/*"
   ],
-  "repository": {
-    "type": "git",
-    "url": "git+ssh://git@github.com/liquiron/xman-js-sdk.git"
-  },
+  "repository": "git+ssh://git@github.com/liquiron/xman-js-sdk.git",
   "keywords": [
     "XMan I/O",
     "xman",
     "Javascript",
+    "typescript",
     "SDK",
     "Small Data",
     "Content Management",
@@ -37,15 +44,21 @@
   },
   "homepage": "https://github.com/liquiron/xman-js-sdk#readme",
   "dependencies": {
-    "axios": "^0.26.1",
-    "https": "^1.0.0",
-    "lodash.isplainobject": "^4.0.6"
+    "axios": "^1.3.4",
+    "https": "^1.0.0"
   },
   "devDependencies": {
-    "@rollup/plugin-json": "^4.1.0",
-    "chai": "^4.3.6",
-    "mocha": "^9.2.2",
-    "rollup": "^2.70.1",
-    "rollup-plugin-terser": "^7.0.2"
-  }
+    "@rollup/plugin-json": "^6.0.0",
+    "@rollup/plugin-terser": "^0.4.0",
+    "@rollup/plugin-typescript": "^11.0.0",
+    "@types/node": "^18.15.0",
+    "@vitest/coverage-c8": "^0.29.2",
+    "msw": "^1.1.0",
+    "rollup": "^3.19.1",
+    "rollup-plugin-dts": "^5.2.0",
+    "tslib": "^2.5.0",
+    "typescript": "^4.9.5",
+    "vitest": "^0.29.2"
+  },
+  "private": true
 }
