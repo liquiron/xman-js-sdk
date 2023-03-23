@@ -49,7 +49,7 @@ export class Workspace {
   async list<T> (collection: any, listParams: ListParams = {}): Promise<XmanItemsList<T>> {
     try {
       const response = await this.getHttpClient().get<XmanItemsList<T>>(collection, {
-        params: { ...listParams, addHints: false }
+        params: { ...listParams }
       })
       return response.data
     } catch (error: unknown) {
@@ -66,11 +66,7 @@ export class Workspace {
   async read<T> (collection: string, itemId: string): Promise<XmanItem<T> | null> {
     let resourceLocation = collection + '/' + itemId
     try {
-      const response = await this.getHttpClient().get<XmanItem<T>>(resourceLocation, {
-        params: {
-          addHints: false
-        }
-      })
+      const response = await this.getHttpClient().get<XmanItem<T>>(resourceLocation)
       return response.data
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
