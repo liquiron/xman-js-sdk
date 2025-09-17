@@ -94,7 +94,7 @@ describe('Workspace Wrapper', async () => {
       authHeader: 'Bearer clientId',
       secret: null
     })
-    const ws4 = ws3.secret('Xman IO is Awesome')
+    const ws4 = ws3.secret('XMan IO is Awesome')
     response = await ws4.read('some-collection', 'someid')
     expect(response?.data).toEqual({
       cdn: 'https://dummy.xman.live',
@@ -103,7 +103,7 @@ describe('Workspace Wrapper', async () => {
       collection: 'some-collection',
       itemId: 'someid',
       authHeader: 'Bearer clientId',
-      secret: 'Xman IO is Awesome' // <-- Changed value
+      secret: 'XMan IO is Awesome' // <-- Changed value
     })
   })
   it('Calls the proper workspace functions', async () => {

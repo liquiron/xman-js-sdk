@@ -4,7 +4,7 @@ Javascript SDK for accessing [XMan I/O](https://xman.io) data
 ## Prerequisite
 1. Sign-up and create a workspace at https://xman.io
 1. Create and publish some content
-1. Create an API Client Key in Xman I/O
+1. Create an API Client Key in XMan I/O
 a. Make sure you add localhost to allowed hosts, if you are doing development on localhost
 b. Secret key is required for SSR and Static Generation (Nuxt, NextJS, Gatsby, etc.)
 1. Generate and copy Types for your API. Paste these types in xman.d.ts file in your project and add "xman.d.ts" entry to your tsconfig.json > "include" section. This will provide IntelliSense in the IDE/editor you are using.
@@ -132,12 +132,12 @@ Would return an item or `null`:
   }
  ```
 
-| Result Field | type | description |
-| ------|------|------|
-| id | `string` | XMan I/O item id |
-| item.data | `Object` | Properties managed in XMan I/O. References to Items and Images get special types with helper methods |
-| createTime | `string` | Timestamp when the item was first published to this stage |
-| updateTime | `string` | Timestamp when the item was most recently published to this stage | 
+| Result Field | type     | description                                                                                          |
+| ------------ | -------- | ---------------------------------------------------------------------------------------------------- |
+| id           | `string` | XMan I/O item id                                                                                     |
+| item.data    | `Object` | Properties managed in XMan I/O. References to Items and Images get special types with helper methods |
+| createTime   | `string` | Timestamp when the item was first published to this stage                                            |
+| updateTime   | `string` | Timestamp when the item was most recently published to this stage                                    |
 
 ### List of Items 
 
@@ -163,19 +163,19 @@ list<T> (collection: string, listParams?: ListParams): Promise<XmanItemsList<T>>
 
 `workspace.list` function
 
-| Input | type | required | description |
-| ------|------|------|------|
-| collection name | `String` | Yes | |
-| listParams | `Object` | No | Sorting and Paging parameters |
-| listParams.pageSize | `Number` | No | Default: 12, Max: 24 |
-| listParams.orderBy | `String` | No | Data property name, followed by blank space and desc or asc. Default: `updateTime desc` |
-| listParams.pageToken | `String` | If Paging | Token returned by the previous `list()` call in `nextPageToken` field |
+| Input                | type     | required  | description                                                                             |
+| -------------------- | -------- | --------- | --------------------------------------------------------------------------------------- |
+| collection name      | `String` | Yes       |                                                                                         |
+| listParams           | `Object` | No        | Sorting and Paging parameters                                                           |
+| listParams.pageSize  | `Number` | No        | Default: 12, Max: 24                                                                    |
+| listParams.orderBy   | `String` | No        | Data property name, followed by blank space and desc or asc. Default: `updateTime desc` |
+| listParams.pageToken | `String` | If Paging | Token returned by the previous `list()` call in `nextPageToken` field                   |
 
 Would return an array of items. Array can be empty, but never `undefined` or `null`
-| Result Field | type | Can be undefined | description |
-| ------|------|------|------|
-| nextPageToken | `String` | Yes | If there are more pages, This token can be passed to the next `list()` call |
-| items | `Array<Item>` | No | List of items |
+| Result Field  | type          | Can be undefined | description                                                                 |
+| ------------- | ------------- | ---------------- | --------------------------------------------------------------------------- |
+| nextPageToken | `String`      | Yes              | If there are more pages, This token can be passed to the next `list()` call |
+| items         | `Array<Item>` | No               | List of items                                                               |
 
 ```json
 {
