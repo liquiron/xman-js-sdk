@@ -175,7 +175,8 @@ describe('Workspace', async () => {
       await expect(() => ws.getImage({ collection: 'xman-assets-image-set' })).rejects.toThrowError()
       //@ts-expect-error testing wrong arguments
       await expect(() => ws.getImage({ collection: 'xman-assets-image-set', id: null })).rejects.toThrowError()
-      await expect(() => ws.getImage({ collection: 'abc', id: '234' })).rejects.toThrowError()
+      //@ts-expect-error testing wrong arguments
+      await expect(() => ws.getImage({ id: '234' })).rejects.toThrowError()
     })
     it('Fails when incorrect ImageSettings', async () => {
 
