@@ -18,7 +18,7 @@
     "moduleResolution": "nodenext",
     "resolveJsonModule": true,
     // "sourceMap": true,
-    "outDir": "build/compiled"
+    "outDir": "dist/sdk"
   },
   "include": [
     "src/**/*"

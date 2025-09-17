@@ -1,6 +1,6 @@
 import { expect, describe, it, beforeAll, afterEach, afterAll } from 'vitest'
 import { setupServer } from 'msw/node'
-import { rest } from 'msw'
+import { http, HttpResponse } from "msw"
 import { mockTags } from './mock-data/xman-tags.json' assert { type: 'json'}
 import { Workspace } from '../src/Workspace'
 import { ImageSettings } from '../src/xman-types'
@@ -15,43 +15,45 @@ const m = {
 const testUrlPrefix = `${m.cdn}/c/${m.workspace}/${m.stage}`
 
 const listHandlers = [
-  rest.get(`${testUrlPrefix}/requires-server-token`, (req, res, ctx) => {
-    if (req.headers.get('XMAN-CLIENT-SECRET') === 'good-token') {
-      return res(ctx.json(mockTags))
+  http.get(`${testUrlPrefix}/requires-server-token`, ({ request }) => {
+    if (request.headers.get('XMAN-CLIENT-SECRET') === 'good-token') {
+      return HttpResponse.json(mockTags)
     } else {
-      return res(ctx.status(403), ctx.text('Wrong server token'))
+      return new HttpResponse('Wrong server token', { status: 403 })
     }
   }),
-  rest.get(`${testUrlPrefix}/requires-bearer`, (req, res, ctx) => {
-    if (req.headers.get('Authorization') === 'Bearer ' + m.clientId) {
-      return res(ctx.json(mockTags))
+  http.get(`${testUrlPrefix}/requires-bearer`, ({ request }) => {
+    if (request.headers.get('Authorization') === 'Bearer ' + m.clientId) {
+      return HttpResponse.json(mockTags)
     } else {
-      return res(ctx.status(403), ctx.text('Wrong client ID'))
+      return new HttpResponse('Wrong client ID', { status: 403 })
     }
   }),
-  rest.get('https://wrong.cdn/*', (req, res, ctx) => {
-    return res(ctx.status(404), ctx.text('Not found'))
+  http.get('https://wrong.cdn/*', () => {
+    return HttpResponse.text('Not found', { status: 404 })
   }),
-  rest.get(`${testUrlPrefix}/xman-tag`, (req, res, ctx) => {
-    return res(ctx.json(mockTags))
+  http.get(`${testUrlPrefix}/xman-tag`, () => {
+    return HttpResponse.json(mockTags)
   }),
-  rest.get(`${testUrlPrefix}/wrong-collection*`, (req, res, ctx) => {
-    return res(ctx.status(403), ctx.text('This API Client is not allowed to read this collection'))
+  http.get(`${testUrlPrefix}/wrong-collection*`, () => {
+    return HttpResponse.text('This API Client is not allowed to read this collection', { status: 403 })
   }),
-  rest.get(`${testUrlPrefix}/xman-tag/:tagId`, (req, res, ctx) => {
-    const { tagId } = req.params
+  http.get(`${testUrlPrefix}/xman-tag/:tagId`, ({ params }) => {
+    const { tagId } = params
     const tag = mockTags.items.find(v => v.id === tagId)
-    if (tag) return res(ctx.json(tag))
-    return res(ctx.status(404), ctx.text(`Not found 123. Make sure item is published to stage: ${m.stage}`))
+    if (tag) return HttpResponse.json(tag)
+    return HttpResponse.text(`Not found 123. Make sure item is published to stage: ${m.stage}`, { status: 404 })
   }),
-  rest.get(`${testUrlPrefix}/xman-assets-image-set/:imageId`, (req, res, ctx) => {
-    const { imageId } = req.params
-    return res(ctx.json({
-      id: imageId,
-      data: {
-        altText: 'Alt for ' + imageId
-      }
-    }))
+  http.get(`${testUrlPrefix}/xman-assets-image-set/:imageId`, ({ params }) => {
+    const { imageId } = params
+    return HttpResponse.json(
+      {
+        id: imageId,
+        data: {
+          altText: 'Alt for ' + imageId
+        }
+      },
+    )
   })
 ]
 
@@ -154,10 +156,43 @@ describe('Workspace', async () => {
       expect(relatedTagItems[1].data.name).toBe('Cool cities')
 
       await expect(() => ws.readReferencedItems<Tag>(phillyItem?.data.parentTag, true)).rejects.toThrowError()
+
+      //@ts-expect-error testing undefined property
+      const emptyRelatedItems = await ws.readReferencedItems<Tag>(phillyItem?.data.nonExistentProperty)
+      expect(emptyRelatedItems).toBeTruthy() // emptyRelatedItems = []
+      expect(emptyRelatedItems.length).toBe(0)
+
     })
 
   })
   describe('Images', async () => {
+    it('Fails when incorrect reference', async () => {
+      //@ts-expect-error testing wrong arguments
+      await expect(() => ws.getImage()).rejects.toThrowError()
+      //@ts-expect-error testing wrong arguments
+      await expect(() => ws.getImage({ collection: undefined })).rejects.toThrowError()
+      //@ts-expect-error testing wrong arguments
+      await expect(() => ws.getImage({ collection: 'xman-assets-image-set' })).rejects.toThrowError()
+      //@ts-expect-error testing wrong arguments
+      await expect(() => ws.getImage({ collection: 'xman-assets-image-set', id: null })).rejects.toThrowError()
+      await expect(() => ws.getImage({ collection: 'abc', id: '234' })).rejects.toThrowError()
+    })
+    it('Fails when incorrect ImageSettings', async () => {
+
+      const imageRefTo234 = { collection: 'xman-assets-image-set', id: '234' }
+      const missingKeyVariations: ImageSettings[] = [
+        { key: 'default', width: 500 },
+        //@ts-expect-error testing wrong arguments
+        { width: 750, fit: 'cover' },
+        { key: 'full' }
+      ]
+      // Works when no variations are requested
+      const imageWithoutVariations = await ws.getImage(imageRefTo234)
+      expect(imageWithoutVariations.alt).toBe('Alt for 234')
+
+      // Fails when wrong variations config used
+      await expect(() => ws.getImage(imageRefTo234, missingKeyVariations)).rejects.toThrowError()
+    })
     it('Generates image URL', async () => {
       const imageRefTo234 = { collection: 'xman-assets-image-set', id: '234' }
       const images = await ws.getImage(imageRefTo234)
@@ -173,6 +208,7 @@ describe('Workspace', async () => {
       const variations: ImageSettings[] = [
         { key: 'default', width: 500 },
         { key: 'medium', width: 750, fit: 'cover' },
+        { key: 'square-profile', width: 400, height: 400 },
         { key: 'full' }
       ]
       const multipleVariations = await ws.getImage(imageRefTo234, variations)
@@ -186,6 +222,11 @@ describe('Workspace', async () => {
           medium: {
             src: 'https://dummy.cdn/i/dummy-workspace/stg1/234?width=750&fit=cover&xacid=clientId',
             width: 750
+          },
+          "square-profile": {
+            src: 'https://dummy.cdn/i/dummy-workspace/stg1/234?width=400&height=400&xacid=clientId',
+            width: 400,
+            height: 400
           },
           full: { src: 'https://dummy.cdn/i/dummy-workspace/stg1/234?xacid=clientId' },
         }

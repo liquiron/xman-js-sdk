@@ -1,22 +1,27 @@
 import { describe, it, expect, beforeAll, afterEach, afterAll } from 'vitest'
 import { setupServer } from 'msw/node'
-import { rest } from 'msw'
+import { DefaultBodyType, http, HttpResponse, PathParams, StrictRequest } from "msw"
 
 import { getWorkspace } from '../src/index'
 
-/** Interface for checking that the API is being called with the right values */
-interface MirrorData {
-  cdn: string
+
+/** Interface for paths referencing XMan Items */
+interface XManPathParams {
   workspace: string,
   stageId: string,
   collection: string,
-  itemId: string,
-  authHeader: string,
-  secret: string
+  itemId?: string
 }
 
-function mirrorRequest (cdn, req): { id: string, data: MirrorData } {
-  const { workspace, stageId, collection, itemId } = req.params
+/** Interface for checking that the API is being called with the right values */
+interface MirrorData extends XManPathParams {
+  cdn: string
+  authHeader: string | null,
+  secret: string | null
+}
+
+function mirrorRequest (cdn: string, req: StrictRequest<DefaultBodyType>, params: XManPathParams): { id: string, data: MirrorData } {
+  const { workspace, stageId, collection, itemId } = params
   return {
     id: 'abcd',
     data: {
@@ -32,14 +37,19 @@ function mirrorRequest (cdn, req): { id: string, data: MirrorData } {
 }
 
 const listHandlers = [
-  rest.get('https://xman.live/c/:workspace/:stageId/:collection', (req, res, ctx) => {
-    return res(ctx.json({ items: [mirrorRequest('https://xman.live', req)] }))
+  http.get<XManPathParams>('https://xman.live/c/:workspace/:stageId/:collection', ({ request, params }) => {
+    return HttpResponse.json(
+      { items: [mirrorRequest('https://xman.live', request, params)] },
+    )
   }),
-  rest.get('https://xman.live/c/:workspace/:stageId/:collection/:itemId', (req, res, ctx) => {
-    return res(ctx.json(mirrorRequest('https://xman.live', req)))
+  http.get<XManPathParams>('https://xman.live/c/:workspace/:stageId/:collection/:itemId', ({ request, params }) => {
+    return HttpResponse.json(mirrorRequest('https://xman.live', request, params),
+    )
   }),
-  rest.get('https://dummy.xman.live/c/:workspace/:stageId/:collection/:itemId', (req, res, ctx) => {
-    return res(ctx.json(mirrorRequest('https://dummy.xman.live', req)))
+  http.get<XManPathParams>('https://dummy.xman.live/c/:workspace/:stageId/:collection/:itemId', ({ request, params }) => {
+    return HttpResponse.json(
+      mirrorRequest('https://dummy.xman.live', request, params),
+    )
   })
 ]
 const server = setupServer(...listHandlers)

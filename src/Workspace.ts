@@ -91,7 +91,6 @@ export class Workspace {
     const fulfilledPromises = settledPromises.filter(v => v.status === 'fulfilled' && Boolean(v.value))
     if (failOnPartialFailure && settledPromises.length !== fulfilledPromises.length) {
       const rejectedPromises = settledPromises.filter(p => p.status === 'rejected')
-        //@ts-expect-error TS doesn't understand that the filter removes fulfilled
         .map(p => p.reason?.message)
         .join(';')
       throw new Error(rejectedPromises)
