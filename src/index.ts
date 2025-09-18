@@ -84,7 +84,7 @@ export interface WorkspaceWrapper {
  * @param workspaceId Workspace ID. You can see this in the URL on XMan I/O
  * @param stageName 'live' by default
  * @param cdnServer Ignore. Unless Liquiron support has asked you to set this
- * @param secret Secret for server side access. DO NOT USE ON IN THE BROWSER
+ * @param secret Secret for server side access. DO NOT USE IN THE BROWSER
  * @returns Workspace object
  */
 export const getWorkspace = (

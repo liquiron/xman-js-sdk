@@ -1,7 +1,8 @@
-import axios, { AxiosInstance, RawAxiosRequestHeaders } from 'axios'
-import { Agent } from 'https'
 import { ListParams, XmanItemsList, XmanItem, XmanFieldValue, ImageSettings, HTMLImageData } from './xman-types.js'
 
+type ProxyResult<T> =
+  | { success: true, data: T }
+  | { success: false, response: Response }
 export class Workspace {
   clientId: string
   workspace: string
@@ -9,7 +10,6 @@ export class Workspace {
   cdnDomain: string
   imageBaseUrl: string
   secret?: string
-  _httpsClient: AxiosInstance | null
 
   constructor(clientId: string, workspace: string, stageId = 'live', cdnDomain = 'https://xman.live', secret?: string) {
     this.clientId = clientId
@@ -18,64 +18,41 @@ export class Workspace {
     this.cdnDomain = cdnDomain
     this.imageBaseUrl = `${cdnDomain}/i/${workspace}/${stageId}/`
     this.secret = secret
-    this._httpsClient = null
   }
 
-  private getHttpClient (): AxiosInstance {
-    if (this._httpsClient) return this._httpsClient
-    const httpsAgent = new Agent({ keepAlive: true })
-    const headers: RawAxiosRequestHeaders = {
-      Authorization: 'Bearer ' + this.clientId
-    }
+  private async fetch<T> (itemPath: string, params?: any): Promise<ProxyResult<T>> {
+
+    const headers = new Headers()
+    headers.set('Authorization', 'Bearer ' + this.clientId)
     if (this.secret) {
-      headers['XMAN-CLIENT-SECRET'] = this.secret
+      headers.set('XMAN-CLIENT-SECRET', this.secret)
     }
-    this._httpsClient = axios.create({
-      baseURL: `${this.cdnDomain}/c/${this.workspace}/${this.stageId}/`,
-      httpsAgent,
+    let path = `${this.cdnDomain}/c/${this.workspace}/${this.stageId}/${itemPath}`
+    if (params) path = `${path}?${new URLSearchParams(params)}`
+    const response = await fetch(path, {
+      method: 'GET',
       headers
     })
-    return this._httpsClient
-    // In rare cases. To log
-    // this.httpsClient.interceptors.request.use(request => {
-    //   console.log('Starting Request', request)
-    //   return request
-    // })
-    // this.httpsClient.interceptors.response.use(response => {
-    //   console.log('Response:', response)
-    //   return response
-    // })
-  }
-  async list<T> (collection: any, listParams: ListParams = {}): Promise<XmanItemsList<T>> {
-    try {
-      const response = await this.getHttpClient().get<XmanItemsList<T>>(collection, {
-        params: { ...listParams }
-      })
-      return response.data
-    } catch (error: unknown) {
-      if (axios.isAxiosError(error)) {
-        // List API never returns a 404.
-        // Only time you get a 404 is when the CDN is incorrect
-        throw new Error(error.message)
-      } else {
-        throw error
-      }
+    if (!response.ok) {
+      const errorMessage = `XMan Response Status: ${response.status} message: ${await response.text()}`
+      console.log(errorMessage)
+      return { success: false, response }
     }
+    const data: T = await response.json() as T
+    return { success: true, data }
+  }
+
+  async list<T> (collection: any, listParams: ListParams = {}): Promise<XmanItemsList<T>> {
+    const result = await this.fetch<XmanItemsList<T>>(collection, listParams)
+    if (result.success) return result.data
+    throw new Error(`XMan Response Status: ${result.response.status} message: ${await result.response.text()}`)
   }
 
   async read<T> (collection: string, itemId: string): Promise<XmanItem<T> | null> {
-    let resourceLocation = collection + '/' + itemId
-    try {
-      const response = await this.getHttpClient().get<XmanItem<T>>(resourceLocation)
-      return response.data
-    } catch (error: unknown) {
-      if (axios.isAxiosError(error)) {
-        if (error.response?.status === 404) return null
-        throw new Error(error.message)
-      } else {
-        throw error
-      }
-    }
+    const result = await this.fetch<XmanItem<T>>(collection + '/' + itemId)
+    if (result.success) return result.data
+    if (result.response.status === 404) return null
+    throw new Error(`XMan Response Status: ${result.response.status} message: ${await result.response.text()}`)
   }
 
   async readReferencedItem<T> (referenceFieldValue?: XmanFieldValue.Reference[]): Promise<XmanItem<T> | null> {
@@ -97,7 +74,6 @@ export class Workspace {
     }
     //@ts-expect-error TS doesn't understand that the filter removes failed
     return fulfilledPromises.map(v => v.value)
-
   }
 
   /**
@@ -110,6 +86,7 @@ export class Workspace {
   async getImages (imgRefs: XmanFieldValue.Reference[], imageSettings?: ImageSettings[]): Promise<HTMLImageData[]> {
     return Promise.all(imgRefs.map(p => this.getImage(p, imageSettings)))
   }
+
   async getImage (imgRef: XmanFieldValue.Reference, imageSettings: ImageSettings[] = [{ key: 'main' }]): Promise<HTMLImageData> {
     if (!imgRef) throw new Error('Invalid Image Reference')
     const { collection, id } = imgRef
@@ -140,7 +117,6 @@ export class Workspace {
   }
 
 }
-
 interface XmanImage {
   masterImage: XmanFieldValue.File
   altText?: string
