@@ -1,3 +1,20 @@
+export interface XmanItem<T> {
+  id: string;
+  data: T;
+  createTime: string;
+  updateTime: string;
+  version: number;
+}
+
+export interface XmanItemsList<T> {
+  items: XmanItem<T>[];
+  /** 
+   * Use in the next `list<T>()` call to get the next set of results.
+   * No more pages left if `nextPageToken` is not present.
+  */
+  nextPageToken?: string;
+}
+
 /**
  * Options for reading a list
  */
@@ -5,7 +22,7 @@
 export interface ListParams {
   /** in page size. Default 12. Max 24. */
   pageSize?: number;
-  /** the `nextPageToken` returned by the previous `list()` call. */
+  /** `nextPageToken` returned by the previous `list()` call. */
   nextPage?: string;
   /** property path to order by, followed by direction. E.g. `name asc` */
   orderBy?: string;
@@ -69,19 +86,6 @@ export namespace XmanFieldValue {
       longitude: number
     },
   }
-}
-
-export interface XmanItem<T> {
-  id: string;
-  data: T;
-  createTime: string;
-  updateTime: string;
-  version: number;
-}
-
-export interface XmanItemsList<T> {
-  items: XmanItem<T>[];
-  nextPageToken?: string;
 }
 
 export interface ImageSettings {
