@@ -7,15 +7,19 @@ import pkg from './package.json' with { type: 'json' }
 export default [
   {
     input: 'src/index.ts',
-    external: ['axios', 'https'],
     output: [
       {
-        file: pkg.main,
+        file: pkg.exports["."].require,
+        format: 'cjs'
+      },
+      {
+        file: pkg.exports["."].import,
         format: 'es'
       },
       {
-        file: pkg.module,
-        format: 'cjs'
+        file: pkg.exports["."].browser,
+        format: 'umd',
+        name: 'XManIO'
       }
     ],
     plugins: [
@@ -28,10 +32,9 @@ export default [
   },
   {
     input: 'src/index.ts',
-    external: ['axios', 'https'],
     plugins: [dts(), json()],
     output: [{
-      file: pkg.typings,
+      file: pkg.exports["."].types,
       format: 'es'
     }]
   }

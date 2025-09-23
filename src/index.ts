@@ -2,7 +2,7 @@ import { Workspace } from './Workspace.js'
 import { ListParams, XmanItemsList, XmanItem, XmanFieldValue, ImageSettings, HTMLImageData } from "./xman-types.d.js";
 // export { version } from '../package.json' assert { type: 'json' }
 /* c8 ignore next 1 */
-export { ListParams, XmanItemsList, XmanItem, XmanFieldValue, ImageSettings, HTMLImageData }
+export type { ListParams, XmanItemsList, XmanItem, XmanFieldValue, ImageSettings, HTMLImageData }
 
 export interface WorkspaceWrapper {
   /**
