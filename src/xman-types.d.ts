@@ -31,9 +31,19 @@ export interface ListParams {
 type XMValidValues = number | string | Date | number[] | string[] | boolean
 type XmanProperties = Record<string, XMValidValues | XmanProperties>
 export interface DecisionInputs {
-  anonymousId?: string,
-  userId?: string,
+  anonymousId?: string
+  userId?: string
   properties?: XmanProperties
+}
+export interface MockContext {
+  profile?: XmanProperties
+  events?: {
+    eventName: string
+    at: number
+    payload?: XmanProperties
+  }[]
+  requestContext?: XmanProperties
+  serverContext?: XmanProperties
 }
 export namespace XmanFieldValue {
   interface Reference {

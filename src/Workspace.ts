@@ -1,4 +1,4 @@
-import { ListParams, XmanItemsList, XmanItem, XmanFieldValue, ImageSettings, HTMLImageData, DecisionInputs, MoadeDecisionResult, EventPayload, AnalyticsInstance, TrackerFunction } from './xman-types.js'
+import { ListParams, XmanItemsList, XmanItem, XmanFieldValue, ImageSettings, HTMLImageData, DecisionInputs, MoadeDecisionResult, EventPayload, AnalyticsInstance, TrackerFunction, MockContext } from './xman-types.js'
 import { isNull, isUndefined, omitBy, isEmpty, set } from 'lodash'
 
 export type ProxyResult<T> =
@@ -82,19 +82,24 @@ export class Workspace {
       })
     }
   }
-  async decide (decisionFlowId: string, decisionInputs: DecisionInputs): Promise<ProxyResult<MoadeDecisionResult>> {
+  async decide (decisionFlowId: string, decisionInputs: DecisionInputs, mockContext?: MockContext): Promise<ProxyResult<MoadeDecisionResult>> {
     const headers = this.getAuthHeaders()
     headers.set('Content-Type', 'application/json')
     const path = `${this.moadeServer}/decider`
     const response = await fetch(path, {
       method: 'POST',
       headers,
-      body: JSON.stringify({
+      body: JSON.stringify(removeNulls({
         workspace: this.workspace,
         stage: this.stageId,
-        pid: decisionFlowId,
-        uid: decisionInputs.userId || decisionInputs.anonymousId
-      })
+        decisionFlowId,
+        pid: decisionFlowId, // For compatibility
+        userId: decisionInputs.userId,
+        anonymousId: decisionInputs.anonymousId,
+        uid: decisionInputs.userId || decisionInputs.anonymousId, // For compatibility
+        properties: decisionInputs.properties,
+        _mock: mockContext,
+      }))
     })
     if (!response.ok) {
       const errorMessage = `XMan Response Status: ${response.status} message: ${await response.text()}`

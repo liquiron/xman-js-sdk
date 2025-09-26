@@ -1,5 +1,5 @@
 import { DEFAULT_MOADE_SERVER, DEFAULT_STAGE, DEFAULT_XMAN_SERVER, ProxyResult, Workspace } from './Workspace.js'
-import type { ListParams, XmanItemsList, XmanItem, XmanFieldValue, ImageSettings, HTMLImageData, DecisionInputs, MoadeDecisionResult, EventPayload, AnalyticsInstance, TrackerFunction } from "./xman-types.d.js";
+import type { ListParams, XmanItemsList, XmanItem, XmanFieldValue, ImageSettings, HTMLImageData, DecisionInputs, MoadeDecisionResult, EventPayload, AnalyticsInstance, TrackerFunction, MockContext } from "./xman-types.d.js";
 // export { version } from '../package.json' assert { type: 'json' }
 /* c8 ignore next 1 */
 export type { ListParams, XmanItemsList, XmanItem, XmanFieldValue, ImageSettings, HTMLImageData }
@@ -54,8 +54,10 @@ export interface WorkspaceWrapper {
    * 
    * @param {string} decisionFlowId Flat Decision Flow Id. Get from the MOADE test harness
    * @param {DecisionInputs} decisionInputs Parameters for making the decision
+   * @param {MockContext?} mockContext optional mock context. Use only for testing
+   * 
    */
-  decide (decisionFlowId: string, decisionInputs: DecisionInputs): Promise<ProxyResult<MoadeDecisionResult>>;
+  decide (decisionFlowId: string, decisionInputs: DecisionInputs, mockContext?: MockContext): Promise<ProxyResult<MoadeDecisionResult>>;
   /**
    * Returns a plugin to be used with the analytics.js library or Segment
    * 
@@ -132,7 +134,7 @@ export const getWorkspace = (
     getImages: (imgRefs, imageSettings?) => ws.getImages(imgRefs, imageSettings),
     getImage: (imgRef, imageSettings) => ws.getImage(imgRef, imageSettings),
     list: (collection, listParams) => ws.list(collection, listParams),
-    decide: (decisionFlowId, decisionInputs) => ws.decide(decisionFlowId, decisionInputs),
+    decide: (decisionFlowId, decisionInputs, mockContext) => ws.decide(decisionFlowId, decisionInputs, mockContext),
     getMoadeAnalyticsPlugin: () => {
       return {
         name: 'MoadeAnalytics',
