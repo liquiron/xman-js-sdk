@@ -1,9 +1,15 @@
-import { Workspace } from './Workspace.js'
-import { ListParams, XmanItemsList, XmanItem, XmanFieldValue, ImageSettings, HTMLImageData } from "./xman-types.d.js";
+import { DEFAULT_MOADE_SERVER, DEFAULT_STAGE, DEFAULT_XMAN_SERVER, ProxyResult, Workspace } from './Workspace.js'
+import type { ListParams, XmanItemsList, XmanItem, XmanFieldValue, ImageSettings, HTMLImageData, DecisionInputs, MoadeDecisionResult, EventPayload, AnalyticsInstance, TrackerFunction } from "./xman-types.d.js";
 // export { version } from '../package.json' assert { type: 'json' }
 /* c8 ignore next 1 */
 export type { ListParams, XmanItemsList, XmanItem, XmanFieldValue, ImageSettings, HTMLImageData }
-
+export interface AnalyticsPlugin {
+  name: string,
+  initialize?: TrackerFunction
+  track?: TrackerFunction
+  page?: TrackerFunction
+  identify?: TrackerFunction
+}
 export interface WorkspaceWrapper {
   /**
    * Reads a specific item. *Returns `null` if item is not found*
@@ -41,6 +47,21 @@ export interface WorkspaceWrapper {
    */
   list<T> (collection: string, listParams?: ListParams): Promise<XmanItemsList<T>>;
   /**
+   * Call the MOADE.ai to get a decision.
+   * 
+   * Make sure you retrieve the userId and anonymousId from your Analytics implementation
+   * and pass it in decisionInputs
+   * 
+   * @param {string} decisionFlowId Flat Decision Flow Id. Get from the MOADE test harness
+   * @param {DecisionInputs} decisionInputs Parameters for making the decision
+   */
+  decide (decisionFlowId: string, decisionInputs: DecisionInputs): Promise<ProxyResult<MoadeDecisionResult>>;
+  /**
+   * Returns a plugin to be used with the analytics.js library or Segment
+   * 
+   */
+  getMoadeAnalyticsPlugin (): AnalyticsPlugin;
+  /**
    * Generates alt text and image URLs for a set of image references.
    * 
    * @param {XmanFieldValue.Reference[]} imgRefs pointers to image items. You can use the reference field values directly
@@ -60,14 +81,21 @@ export interface WorkspaceWrapper {
    * Change the stage to pull data from. Default is 'live'
    * @param {String} stageName 
    */
-  stage (stageName?: string): WorkspaceWrapper;
+  stage (stageName: string): WorkspaceWrapper;
   /**
    * Point to a separate delivery CDN.
    * Only applicable to "Environment" plans.
    * 
    * @param {String} cdnServer CDN Server URL
    */
-  cdn (cdnServer?: string): WorkspaceWrapper;
+  cdn (cdnServer: string): WorkspaceWrapper;
+  /**
+   * Point to a separate MOADE.ai decision server.
+   * Only applicable to "Environment" plans.
+   * 
+   * @param {String} moadeServer MOADE.ai Server URL
+   */
+  moade (moadeServer: string): WorkspaceWrapper;
   /**
    * Provide the secret part of the key for server side access without `Origin` check
    * *DO NOT USE IN A CLIENT SIDE WEB APP*
@@ -84,18 +112,19 @@ export interface WorkspaceWrapper {
  * @param workspaceId Workspace ID. You can see this in the URL on XMan I/O
  * @param stageName 'live' by default
  * @param cdnServer Ignore. Unless Liquiron support has asked you to set this
+ * @param moadeServer Ignore. Unless Liquiron support has asked you to set this
  * @param secret Secret for server side access. DO NOT USE IN THE BROWSER
  * @returns Workspace object
  */
 export const getWorkspace = (
   clientId: string,
   workspaceId: string,
-  stageName = 'live',
-  cdnServer = 'https://xman.live',
+  stageName = DEFAULT_STAGE,
+  cdnServer = DEFAULT_XMAN_SERVER,
+  moadeServer = DEFAULT_MOADE_SERVER,
   secret?: string): WorkspaceWrapper => {
 
-  const ws = new Workspace(clientId, workspaceId, stageName, cdnServer, secret)
-
+  const ws = new Workspace(clientId, workspaceId, stageName, cdnServer, moadeServer, secret)
   return {
     read: (collection, itemId) => ws.read(collection, itemId),
     readReferencedItem: (rf) => ws.readReferencedItem(rf),
@@ -103,14 +132,25 @@ export const getWorkspace = (
     getImages: (imgRefs, imageSettings?) => ws.getImages(imgRefs, imageSettings),
     getImage: (imgRef, imageSettings) => ws.getImage(imgRef, imageSettings),
     list: (collection, listParams) => ws.list(collection, listParams),
-    stage (stageName = 'live'): WorkspaceWrapper {
-      return getWorkspace(clientId, workspaceId, stageName, cdnServer, secret)
+    decide: (decisionFlowId, decisionInputs) => ws.decide(decisionFlowId, decisionInputs),
+    getMoadeAnalyticsPlugin: () => {
+      return {
+        name: 'MoadeAnalytics',
+        track: ws.getMoadeTracker(),
+        page: ws.getMoadeTracker('page_view', true)
+      }
     },
-    cdn (cdnServer = 'https://xman.live'): WorkspaceWrapper {
-      return getWorkspace(clientId, workspaceId, stageName, cdnServer, secret)
+    stage (stageName = DEFAULT_STAGE): WorkspaceWrapper {
+      return getWorkspace(clientId, workspaceId, stageName, cdnServer, moadeServer, secret)
+    },
+    cdn (cdnServer = DEFAULT_XMAN_SERVER): WorkspaceWrapper {
+      return getWorkspace(clientId, workspaceId, stageName, cdnServer, moadeServer, secret)
+    },
+    moade (moadeServer = DEFAULT_MOADE_SERVER): WorkspaceWrapper {
+      return getWorkspace(clientId, workspaceId, stageName, cdnServer, moadeServer, secret)
     },
     secret (secret: string): WorkspaceWrapper {
-      return getWorkspace(clientId, workspaceId, stageName, cdnServer, secret)
+      return getWorkspace(clientId, workspaceId, stageName, cdnServer, moadeServer, secret)
     }
   }
 }

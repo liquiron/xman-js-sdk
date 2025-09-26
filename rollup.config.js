@@ -7,6 +7,7 @@ import pkg from './package.json' with { type: 'json' }
 export default [
   {
     input: 'src/index.ts',
+    external: ['lodash'],
     output: [
       {
         file: pkg.exports["."].require,
@@ -19,7 +20,10 @@ export default [
       {
         file: pkg.exports["."].browser,
         format: 'umd',
-        name: 'XManIO'
+        name: 'XManIO',
+        globals: {
+          lodash: '_'
+        }
       }
     ],
     plugins: [

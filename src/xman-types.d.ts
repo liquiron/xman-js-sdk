@@ -28,6 +28,13 @@ export interface ListParams {
   orderBy?: string;
 }
 
+type XMValidValues = number | string | Date | number[] | string[] | boolean
+type XmanProperties = Record<string, XMValidValues | XmanProperties>
+export interface DecisionInputs {
+  anonymousId?: string,
+  userId?: string,
+  properties?: XmanProperties
+}
 export namespace XmanFieldValue {
   interface Reference {
     collection: string;
@@ -111,3 +118,33 @@ export interface HTMLImageData {
     };
   };
 }
+export interface MoadeDecisionResult {
+  promo: {
+    payload: {
+      id: string
+      title?: string
+      cta?: string
+      targetUrl?: string
+      name?: string
+      coverImage?: XmanFieldValue.Reference[]
+    }
+    goalEventName?: string
+  }
+}
+
+export interface EventPayload {
+  event?: string
+  userId?: string
+  anonymousId?: string
+  properties?: XmanProperties
+}
+
+export interface AnalyticsInstance {
+  getState: () => {
+    context?: {
+      campaign?: XmanProperties
+    }
+  }
+}
+
+export type TrackerFunction = ({ payload, instance }: { payload: EventPayload, instance: AnalyticsInstance }) => void

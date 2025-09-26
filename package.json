@@ -1,6 +1,6 @@
 {
   "name": "@xman.io/xman-js-sdk",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "Javascript/typescript SDK to access the data published using XMan.io",
   "type": "module",
   "main": "./dist/sdk/xman-js-sdk.cjs",
@@ -45,11 +45,14 @@
     "url": "https://github.com/liquiron/xman-js-sdk/issues"
   },
   "homepage": "https://github.com/liquiron/xman-js-sdk#readme",
-  "dependencies": {},
+  "dependencies": {
+    "lodash": "^4.17.21"
+  },
   "devDependencies": {
     "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-terser": "^0.4.4",
     "@rollup/plugin-typescript": "^12.1.4",
+    "@types/lodash": "^4.17.20",
     "@types/node": "^24.5.1",
     "@vitest/coverage-v8": "^3.2.4",
     "msw": "^2.11.2",

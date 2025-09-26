@@ -1,33 +1,38 @@
-import { ListParams, XmanItemsList, XmanItem, XmanFieldValue, ImageSettings, HTMLImageData } from './xman-types.js'
+import { ListParams, XmanItemsList, XmanItem, XmanFieldValue, ImageSettings, HTMLImageData, DecisionInputs, MoadeDecisionResult, EventPayload, AnalyticsInstance, TrackerFunction } from './xman-types.js'
+import { isNull, isUndefined, omitBy, isEmpty, set } from 'lodash'
 
-type ProxyResult<T> =
+export type ProxyResult<T> =
   | { success: true, data: T }
   | { success: false, response: Response }
+
+export const DEFAULT_MOADE_SERVER = 'https://moade.xman.live'
+export const DEFAULT_XMAN_SERVER = 'https://xman.live'
+export const DEFAULT_STAGE = 'live'
+
+const removeNulls = (o: any) => omitBy(o, v => isUndefined(v) || isNull(v))
 export class Workspace {
   clientId: string
   workspace: string
   stageId: string
-  cdnDomain: string
+  cdnServer: string
+  moadeServer: string
   imageBaseUrl: string
   secret?: string
 
-  constructor(clientId: string, workspace: string, stageId = 'live', cdnDomain = 'https://xman.live', secret?: string) {
+  constructor(clientId: string, workspace: string, stageId = DEFAULT_STAGE, cdnServer = DEFAULT_XMAN_SERVER, moadeServer = DEFAULT_MOADE_SERVER, secret?: string) {
     this.clientId = clientId
     this.workspace = workspace
     this.stageId = stageId
-    this.cdnDomain = cdnDomain
-    this.imageBaseUrl = `${cdnDomain}/i/${workspace}/${stageId}/`
+    this.cdnServer = cdnServer
+    this.moadeServer = moadeServer
+    this.imageBaseUrl = `${cdnServer}/i/${workspace}/${stageId}/`
     this.secret = secret
   }
 
-  private async fetch<T> (itemPath: string, params?: any): Promise<ProxyResult<T>> {
+  private async fetchContent<T> (itemPath: string, params?: any): Promise<ProxyResult<T>> {
 
-    const headers = new Headers()
-    headers.set('Authorization', 'Bearer ' + this.clientId)
-    if (this.secret) {
-      headers.set('XMAN-CLIENT-SECRET', this.secret)
-    }
-    let path = `${this.cdnDomain}/c/${this.workspace}/${this.stageId}/${itemPath}`
+    const headers = this.getAuthHeaders()
+    let path = `${this.cdnServer}/c/${this.workspace}/${this.stageId}/${itemPath}`
     if (params) path = `${path}?${new URLSearchParams(params)}`
     const response = await fetch(path, {
       method: 'GET',
@@ -42,14 +47,71 @@ export class Workspace {
     return { success: true, data }
   }
 
+  private getAuthHeaders (): Headers {
+    const headers = new Headers()
+    headers.set('Authorization', 'Bearer ' + this.clientId)
+    if (this.secret) {
+      headers.set('XMAN-CLIENT-SECRET', this.secret)
+    }
+    return headers
+  }
+
+  getMoadeTracker (fixedEventName?: string, reportCampaign = false): TrackerFunction {
+    return ({ payload, instance }: { payload: EventPayload, instance: AnalyticsInstance }) => {
+      const eventName = fixedEventName ?? payload?.event ?? 'unspecified_event'
+      const { userId, anonymousId, properties } = payload
+      const headers = this.getAuthHeaders()
+      headers.set('Content-Type', 'text/plain;charset=UTF-8')
+      const path = `${this.moadeServer}/event/${this.workspace}/${this.stageId}`
+      const body = removeNulls({ userId, anonymousId, properties, eventName })
+
+      if (reportCampaign) {
+        const state = instance?.getState()
+        const campaign = state?.context?.campaign
+        if (!isEmpty(campaign)) { set(body, 'properties.campaign', campaign) }
+      }
+      fetch(path, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(body),
+        mode: 'no-cors'
+      }).then(() => {
+        // console.log('Done')
+      }).catch(error => {
+        console.error('Error sending analytics event:', error);
+      })
+    }
+  }
+  async decide (decisionFlowId: string, decisionInputs: DecisionInputs): Promise<ProxyResult<MoadeDecisionResult>> {
+    const headers = this.getAuthHeaders()
+    headers.set('Content-Type', 'application/json')
+    const path = `${this.moadeServer}/decider`
+    const response = await fetch(path, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        workspace: this.workspace,
+        stage: this.stageId,
+        pid: decisionFlowId,
+        uid: decisionInputs.userId || decisionInputs.anonymousId
+      })
+    })
+    if (!response.ok) {
+      const errorMessage = `XMan Response Status: ${response.status} message: ${await response.text()}`
+      console.log(errorMessage)
+      return { success: false, response }
+    }
+    const data: MoadeDecisionResult = await response.json() as MoadeDecisionResult
+    return { success: true, data }
+  }
   async list<T> (collection: any, listParams: ListParams = {}): Promise<XmanItemsList<T>> {
-    const result = await this.fetch<XmanItemsList<T>>(collection, listParams)
+    const result = await this.fetchContent<XmanItemsList<T>>(collection, listParams)
     if (result.success) return result.data
     throw new Error(`XMan Response Status: ${result.response.status} message: ${await result.response.text()}`)
   }
 
   async read<T> (collection: string, itemId: string): Promise<XmanItem<T> | null> {
-    const result = await this.fetch<XmanItem<T>>(collection + '/' + itemId)
+    const result = await this.fetchContent<XmanItem<T>>(collection + '/' + itemId)
     if (result.success) return result.data
     if (result.response.status === 404) return null
     throw new Error(`XMan Response Status: ${result.response.status} message: ${await result.response.text()}`)

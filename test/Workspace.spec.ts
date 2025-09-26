@@ -10,6 +10,7 @@ const m = {
   workspace: 'dummy-workspace',
   clientId: 'clientId',
   serverToken: 'good-token',
+  moadeServer: 'https://moade.dummy.cdn',
   stage: 'stg1'
 }
 const testUrlPrefix = `${m.cdn}/c/${m.workspace}/${m.stage}`
@@ -66,21 +67,21 @@ describe('Workspace', async () => {
   const ws = new Workspace(m.clientId, m.workspace, m.stage, m.cdn)
   describe('Key Settings', async () => {
     it('Throws error with wrong CDN', async () => {
-      const wsWithWrongCDN = new Workspace(m.clientId, m.workspace, m.stage, 'https://wrong.cdn', m.serverToken)
+      const wsWithWrongCDN = new Workspace(m.clientId, m.workspace, m.stage, 'https://wrong.cdn', m.moadeServer, m.serverToken)
       const itemsCall = async () => { await wsWithWrongCDN.list('xman-tag') }
       await expect(itemsCall).rejects.toThrowError()
     })
     it('Sets secret key', async () => {
       const itemsCall = async () => { await ws.list('requires-server-token') }
       await expect(itemsCall).rejects.toThrowError()
-      const wsWithToken = new Workspace(m.clientId, m.workspace, m.stage, m.cdn, m.serverToken)
+      const wsWithToken = new Workspace(m.clientId, m.workspace, m.stage, m.cdn, m.moadeServer, m.serverToken)
       const tagsList = await wsWithToken.list('requires-server-token')
       expect(tagsList.items.length).toBe(6)
     })
     it('Sets client ID', async () => {
       const tagsList = await ws.list('requires-bearer')
       expect(tagsList.items.length).toBe(6)
-      const wsWithWrongClient = new Workspace('wrong client', m.workspace, m.stage, m.cdn, m.serverToken)
+      const wsWithWrongClient = new Workspace('wrong client', m.workspace, m.stage, m.cdn, m.moadeServer, m.serverToken)
       const itemsCall = async () => { await wsWithWrongClient.list('requires-bearer') }
       await expect(itemsCall).rejects.toThrowError()
     })
