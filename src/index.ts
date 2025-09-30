@@ -80,6 +80,16 @@ export interface WorkspaceWrapper {
    */
   getImage (imgRef: XmanFieldValue.Reference, imageSettings?: ImageSettings[]): Promise<HTMLImageData>;
   /**
+   * Generates image URLs for one image reference. 
+   * Use with references in Live Collections where the Alt in the is always up-to-date.
+   * *NOTE* that this is a synchronous function. Don't await.
+   * 
+   * @param {XmanFieldValue.Reference} imgRef pointers to an image item. You can use the reference field value directly
+   * @param {ImageSettings?} imageSettings image settings
+   * @returns HTMLImageData['variations'] image details
+   */
+  generateImageVariations (imgRef: XmanFieldValue.Reference, imageSettings?: ImageSettings[]): HTMLImageData['variations'];
+  /**
    * Change the stage to pull data from. Default is 'live'
    * @param {String} stageName 
    */
@@ -131,6 +141,7 @@ export const getWorkspace = (
     read: (collection, itemId) => ws.read(collection, itemId),
     readReferencedItem: (rf) => ws.readReferencedItem(rf),
     readReferencedItems: (rf, failOnPartialFailure?) => ws.readReferencedItems(rf, failOnPartialFailure),
+    generateImageVariations: (imgRef, imageSettings) => ws.generateImageVariations(imgRef, imageSettings),
     getImages: (imgRefs, imageSettings?) => ws.getImages(imgRefs, imageSettings),
     getImage: (imgRef, imageSettings) => ws.getImage(imgRef, imageSettings),
     list: (collection, listParams) => ws.list(collection, listParams),

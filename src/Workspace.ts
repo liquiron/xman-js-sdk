@@ -154,7 +154,7 @@ export class Workspace {
     return Promise.all(imgRefs.map(p => this.getImage(p, imageSettings)))
   }
 
-  async getImage (imgRef: XmanFieldValue.Reference, imageSettings: ImageSettings[] = [{ key: 'main' }]): Promise<HTMLImageData> {
+  async getImage (imgRef: XmanFieldValue.Reference, imageSettings?: ImageSettings[]): Promise<HTMLImageData> {
     if (!imgRef) throw new Error('Invalid Image Reference')
     const { collection, id } = imgRef
     if (!collection || !id) throw new Error('Invalid Image Reference')
@@ -162,6 +162,11 @@ export class Workspace {
     // TODO: include blurhash in the pointer and use it if image fails to load
     // Or figure out how to fail gracefully
     let alt = imageItem?.data.altText || imgRef.altText || imgRef.label || ''
+    const variations = this.generateImageVariations(imgRef, imageSettings)
+    return { alt, variations }
+  }
+
+  generateImageVariations (imgRef: XmanFieldValue.Reference, imageSettings: ImageSettings[] = [{ key: 'main' }]): HTMLImageData['variations'] {
     const imgBaseUrl = this.imageBaseUrl + imgRef.id
     const variations = imageSettings.reduce((pv, imageSetting) => {
       const imgUrl = new URL(imgBaseUrl)
@@ -180,9 +185,8 @@ export class Workspace {
         ...pv
       }
     }, {})
-    return { alt, variations }
+    return variations
   }
-
 }
 interface XmanImage {
   masterImage: XmanFieldValue.File

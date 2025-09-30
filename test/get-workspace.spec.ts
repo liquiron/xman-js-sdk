@@ -142,5 +142,20 @@ describe('Workspace Wrapper', async () => {
     expect(imageList[0].alt).toBeFalsy()
     expect(Object.keys(imageList[0].variations)).toHaveLength(1)
     expect(imageList[0].variations.main.src).toBe('https://xman.live/i/workspaceId/live/img-1?xacid=clientId')
+
+    const justMainVariation = ws.generateImageVariations({ collection: 'xman-assets-image-set', id: 'img-1' })
+    expect(Object.keys(justMainVariation)).toHaveLength(1)
+    expect(justMainVariation.main.src).toBe('https://xman.live/i/workspaceId/live/img-1?xacid=clientId')
+
+    const justVariations = ws.generateImageVariations(
+      { collection: 'xman-assets-image-set', id: 'img22' },
+      [
+        { key: 'default', width: 800 },
+        { key: 'phone', width: 400 }
+      ])
+    expect(Object.keys(justVariations)).toHaveLength(2)
+    expect(justVariations.default.src).toBe('https://xman.live/i/workspaceId/live/img22?width=800&xacid=clientId')
+    expect(justVariations.phone.src).toBe('https://xman.live/i/workspaceId/live/img22?width=400&xacid=clientId')
+
   })
 })

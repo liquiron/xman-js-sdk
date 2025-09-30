@@ -299,3 +299,55 @@ You can also choose the focus point manually in XMan.io.
 
 Image service always delivers images in progressive JPEG format (`image/jpeg`)
 
+### Faster performance with pre-baked image references
+
+Certain Dynamic Collections, such as Promos in MOADE.ai, maintain up-to-date `altText` value in the image reference. These references are automatically regenerated whenever an updated version of the referenced image item is published.
+In these cases use the synchronous `workspace.generateImageVariations` method and use the `altText` value from the image reference.
+
+**Example**
+A call to `wworkspace.decide()` returns:
+```json
+ "promo": {
+    "goalEventName": "subscription_completed",
+    "payload": {
+      "coverImage": [
+        {
+          "id": "yQy1Sg86Y6vJPdVoiGKG",
+          "collection": "xman-assets-image-set",
+          "altText": "Illustration of a business woman in a suit, wearing glasses, reading a business magazine while sitting at her table. The table also has hot coffee, her laptop, and some other papers."
+        }
+      ],
+      "title": "Build your business",
+      "name": "Cross sell: Business Magazine",
+      "id": "9VPU4umlw3BfUKUAedhK",
+      "targetUrl": "https://explore-and-excel.com/business-magazine",
+      "cta": "SUBSCRIBE"
+    }
+  }
+
+```
+
+The coverImage can be rendered as:
+
+```jsx
+  const imageVariationsUsed = [
+        { key: 'default', width: 400 },
+        { key: 'medium', width: 600, fit: 'cover' },
+        { key: 'square-profile', width: 400, height: 400 },
+        { key: 'full' }
+  ]
+  const coverImageVariations = workspace.generateImageVariations(coverImage[0], imageVariationsUsed)
+  return (
+    <picture>
+      <source srcset="${coverImageVariations.full.src}" media="(min-width: 800px)" />
+      <source srcset="${coverImageVariations.medium.src}" media="(min-width: 600px)" />
+      <img src="${coverImageVariations.default.src}" alt="${coverImage[0].alt}" />
+    </picture>
+  )
+```
+
+Generate variations f0r all `coverImages`:
+
+```js
+  const images = coverImage.map(imageRef => workspace.generateImageVariations(imageRef, imageVariationsUsed))
+```

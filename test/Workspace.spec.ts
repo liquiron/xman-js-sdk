@@ -197,11 +197,18 @@ describe('Workspace', async () => {
     })
     it('Generates image URL', async () => {
       const imageRefTo234 = { collection: 'xman-assets-image-set', id: '234' }
-      const images = await ws.getImage(imageRefTo234)
-      expect(images.alt).toBe('Alt for 234')
-      expect(Object.keys(images.variations)).toHaveLength(1)
-      expect(images.variations.main.src).toBe('https://dummy.cdn/i/dummy-workspace/stg1/234?xacid=clientId')
-      expect(images).toMatchObject({
+      const justVariations = ws.generateImageVariations(imageRefTo234)
+      const imagesWithUpdatedAlt = await ws.getImage(imageRefTo234)
+
+      expect(imagesWithUpdatedAlt.alt).toBe('Alt for 234')
+
+      expect(Object.keys(justVariations)).toHaveLength(1)
+      expect(Object.keys(imagesWithUpdatedAlt.variations)).toHaveLength(1)
+
+      expect(imagesWithUpdatedAlt.variations.main.src).toBe('https://dummy.cdn/i/dummy-workspace/stg1/234?xacid=clientId')
+      expect(justVariations.main.src).toBe('https://dummy.cdn/i/dummy-workspace/stg1/234?xacid=clientId')
+
+      expect(imagesWithUpdatedAlt).toMatchObject({
         alt: 'Alt for 234',
         variations: {
           main: { src: 'https://dummy.cdn/i/dummy-workspace/stg1/234?xacid=clientId' }
