@@ -1,6 +1,6 @@
 {
   "name": "@xman.io/xman-js-sdk",
-  "version": "1.4.4",
+  "version": "1.4.5",
   "description": "Javascript/typescript SDK to access the data published using XMan.io",
   "type": "module",
   "main": "./dist/sdk/xman-js-sdk.cjs",
@@ -28,7 +28,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/liquiron/xman-js-sdk.git"
+    "url": "https://github.com/liquiron/xman-js-sdk"
   },
   "keywords": [
     "XMan I/O",
