@@ -346,7 +346,7 @@ The coverImage can be rendered as:
   )
 ```
 
-Generate variations f0r all `coverImages`:
+Generate variations for all `coverImages`:
 
 ```js
   const images = coverImage.map(imageRef => workspace.generateImageVariations(imageRef, imageVariationsUsed))
