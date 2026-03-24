@@ -31,7 +31,6 @@ jobs:
     permissions:
       id-token: write
       contents: read
-      packages: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
@@ -52,4 +51,5 @@ jobs:
       - name: Publish to npm
         run: |
           unset NODE_AUTH_TOKEN
-          npm publish --provenance --access public
+          npm install -g npm@latest
+          npm publish --access public
