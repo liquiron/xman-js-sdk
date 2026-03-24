@@ -1,8 +1,8 @@
 import { DEFAULT_MOADE_SERVER, DEFAULT_STAGE, DEFAULT_XMAN_SERVER, ProxyResult, Workspace } from './Workspace.js'
-import type { ListParams, XmanItemsList, XmanItem, XmanFieldValue, ImageSettings, HTMLImageData, DecisionInputs, MoadeDecisionResult, EventPayload, AnalyticsInstance, TrackerFunction, MockContext } from "./xman-types.d.js";
+import type { ListParams, XmanItemsList, XmanItem, XmanFieldValue, ImageSettings, HTMLImageData, DecisionInputs, MoadeDecisionResult, XMValidValues, XmanProperties, AnalyticsInstance, TrackerFunction, MockContext } from "./xman-types.d.js";
 // export { version } from '../package.json' assert { type: 'json' }
 /* c8 ignore next 1 */
-export type { ListParams, XmanItemsList, XmanItem, XmanFieldValue, ImageSettings, HTMLImageData }
+export type { ListParams, XmanItemsList, XmanItem, XmanFieldValue, XMValidValues, XmanProperties, ImageSettings, HTMLImageData, DecisionInputs, MoadeDecisionResult, MockContext }
 export interface AnalyticsPlugin {
   name: string,
   initialize?: TrackerFunction

@@ -28,8 +28,8 @@ export interface ListParams {
   orderBy?: string;
 }
 
-type XMValidValues = number | string | Date | number[] | string[] | boolean
-type XmanProperties = Record<string, XMValidValues | XmanProperties>
+export type XMValidValues = number | string | Date | number[] | string[] | boolean
+export type XmanProperties = Record<string, XMValidValues | XmanProperties>
 export interface DecisionInputs {
   anonymousId?: string
   userId?: string
