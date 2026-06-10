@@ -77,7 +77,7 @@ export class Workspace {
         mode: 'no-cors'
       }).then(() => {
         // console.log('Done')
-      }).catch(error => {
+      }).catch((error: any) => {
         console.error('Error sending analytics event:', error);
       })
     }
